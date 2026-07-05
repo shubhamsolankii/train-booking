@@ -29,3 +29,24 @@ exports.sendOTP = asyncHandler(async (req, res) => {
          otp
      })
 })
+
+exports.verifyOTP = asyncHandler( async(req, res) => {
+    const { otp} = req.body;
+    const otpSessionId = req.cookies.otp_session;
+
+    if( !otp || !otpSessionId) {
+        throw new BadRequestError('OTP and session ID are required');
+    }
+
+    const user = await authService.verifyOTP(otp, otpSessionId);
+
+    if(!user) {
+        throw new BadRequestError('OTP verification failed');
+    }
+    
+    res.status(200).json({
+        success: true,
+        message: 'OTP verified successfully',
+        user
+    });
+})

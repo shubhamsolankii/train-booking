@@ -1,5 +1,6 @@
 const prisma = require("../config/prisma")
-const { ConflictError } = require("../utils/error")
+const { ConflictError, BadRequestError } = require("../utils/error");
+const { verifyOtp } = require("../utils/otp");
 const { generateAndStoreOtp } = require("../utils/otp");
 // const { sendOtpEmail } = require("../utils/email");
 const bycrypt = require("bcrypt");
@@ -25,6 +26,27 @@ const sendOTP = async( firstName, lastName, email, password) => {
     return {otpSessionId, otp}
 }
 
+const verifyOTP = async(otp, otpSessionId) => {
+    const meta = await verifyOtp(otp, otpSessionId);
+
+    if(!meta) {
+        throw new BadRequestError('OTP verification failed');
+    }
+
+    const user = await prisma.user.create({
+        data : {
+            firstName : meta.firstName,
+            lastName : meta.lastName,
+            email : meta.email,
+            password : meta.hashedPassword
+        }
+    });
+
+    //await verifyOtpEmail(otp, otpSessionId); 
+    return user;
+}
+
 module.exports = {
-    sendOTP
+    sendOTP,
+    verifyOTP
 }
