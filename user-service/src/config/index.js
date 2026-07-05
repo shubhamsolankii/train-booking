@@ -33,15 +33,15 @@ const config = {
 }
 
 
-if (!config.GOOGLE_CLIENT_ID) {
-  throw new Error("GOOGLE_CLIENT_ID environment variable is required");
-}
+// if (!config.GOOGLE_CLIENT_ID) {
+//   throw new Error("GOOGLE_CLIENT_ID environment variable is required");
+// }
 
-if (!config.SENDGRID_API_KEY) {
-  throw new Error('SENDGRID_API_KEY missing');
-}
+// if (!config.SENDGRID_API_KEY) {
+//   throw new Error('SENDGRID_API_KEY missing');
+// }
 
-if (!config.MAIL_SEND) {
-  throw new Error('MAIL_SEND missing');
-}
+// if (!config.MAIL_SEND) {
+//   throw new Error('MAIL_SEND missing');
+// }
 module.exports = { config };
