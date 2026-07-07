@@ -110,3 +110,33 @@ exports.rotateRefreshToken = asyncHandler( async (req, res) => {
         message: 'Refresh token rotated successfully' 
     })
 });
+
+exports.verifyGoogleIdToken = asyncHandler( async(req, res) => {
+    const {idToken} = req.body;
+    if(!idToken){
+        throw new BadRequestError('ID token is required');
+    }
+
+    const deviceId = getDeviceFingerprint(req);
+    const {accessToken, refreshToken, loggedInUser} = await authService.verifyGoogleIdToken(idToken, deviceId);
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict',
+        maxAge: config.ACCESS_TOKEN_EXP_SEC * 1000,
+    })
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict',
+        maxAge: config.REFRESH_TOKEN_EXP_SEC * 1000,
+    })
+
+    return res.status(200).json({
+        success: true,
+        user: loggedInUser,
+        message: 'Google login successful',
+    })
+})
