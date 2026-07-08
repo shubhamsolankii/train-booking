@@ -9,7 +9,9 @@ const { generateAndStoreOtp } = require("../utils/otp");
 const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
+const notificationProducer = require("../kafka/producer/notification.producer");
 const client = new OAuth2Client(config.GOOGLE_CLIENT_ID);
+const logger = require("../config/logger");
 
 const sendOTP = async( firstName, lastName, email, password) => {
 
@@ -28,6 +30,8 @@ const sendOTP = async( firstName, lastName, email, password) => {
     const {otp, otpSessionId} = await generateAndStoreOtp(meta);
 
     // await sendOtpEmail(email, otp);
+    await notificationProducer.sendOtpEmail(email, otp, (config.OTP_TTL / 60)); // Convert seconds to minutes
+    logger.info("OTP EMAIL QUEUED", {email, otp, otpSessionId});
     return {otpSessionId, otp}
 }
 
